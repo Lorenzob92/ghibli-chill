@@ -14,9 +14,7 @@
 - **Lo-fi Music Playlists:** Choose between curated lo-fi and jazz chill tracks to set the perfect study/work mood.
 - **Ambient Sounds:** Layer calming rain, campfire, or coffee shop sounds over your music for deeper immersion.
 - **Ghibli Video Overlay:** Pull the lamp switch to activate a beautiful Ghibli-inspired video loop with VHS film grain effects.
-- **To-Do List:** A simple, locally-saved task tracker to keep you organized without leaving your flow state.
-- **Timers:** Quick access to 5, 10, and 15-minute focus timers with pleasant notification sounds.
-- **Notion-Embeddable:** Easily embed Ghibli Chill into your Notion pages for an all-in-one workspace.
+- **Timed Task List:** Track your tasks with time logging and export your completed work to CSV for productivity reports.
 
 ## 🛠️ How It Works
 
