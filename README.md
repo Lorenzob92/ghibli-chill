@@ -1,18 +1,15 @@
-# NookOffice - Hourly Animal Crossing Music
+# Ghibli Chill - Productivity Suite 🍃📼
 
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/VijiatJack/nookoffice/commits/main)
 [![Site Status](https://img.shields.io/website-up-down-green-red/https/vijiatjack.github.io/nookoffice/.svg)](https://vijiatjack.github.io/nookoffice/)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/VijiatJack/nookoffice/blob/main/LICENSE)
 
-> **Visit the live site: [nookoffice.live](https://vijiatjack.github.io/nookoffice/)**
+> **Attribution:** This project is a fork and patch of the **NookOffice** by **[@cjlaserna](https://github.com/cjlaserna)**. Please consider supporting her work!
 
-NookOffice provides a relaxing and productive environment by streaming hourly rotating music from Animal Crossing: New Horizons. It's perfect for studying, working, or just unwinding. The site also includes ambient rain sounds, a to-do list, and simple timers to help you stay focused.
-
-This project is a fork and continuation of the original NookOffice by [@cjlaserna](https://github.com/cjlaserna). Please consider supporting her work!
+**Ghibli Chill** is a cozy, lo-fi productivity workspace designed to help you focus.
 
 ![Site Image](/public/timerprev.png)
 
-## ✨ Features
 
 - **Hourly Music:** Automatically plays the corresponding Animal Crossing: New Horizons music for the current hour.
 - **Ambient Sounds:** Layer calming rain sounds over the music.
