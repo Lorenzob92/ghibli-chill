@@ -7,7 +7,8 @@
 
 **Ghibli Chill** is a cozy, lo-fi productivity workspace inspired by Studio Ghibli aesthetics, designed to help you focus with ambient vibes and minimal distractions.
 
-![Site Preview](/public/timerprev.png)
+![Site Preview](https://i.ibb.co/hJKcG8vB/Clean-Shot-2025-12-11-at-14-31-23-2x.png)
+![Site Preview](https://i.ibb.co/rRD2dhkK/Clean-Shot-2025-12-11-at-16-35-45-2x.png)
 
 ## ✨ Features
 
