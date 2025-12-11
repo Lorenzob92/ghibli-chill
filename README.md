@@ -1,33 +1,34 @@
 # Ghibli Chill - Productivity Suite 🍃📼
 
-[![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/VijiatJack/nookoffice/commits/main)
-[![Site Status](https://img.shields.io/website-up-down-green-red/https/vijiatjack.github.io/nookoffice/.svg)](https://vijiatjack.github.io/nookoffice/)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/VijiatJack/nookoffice/blob/main/LICENSE)
+[![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Lorenzob92/ghibli-chill/commits/main)
+[![Site Status](https://img.shields.io/website-up-down-green-red/https/ghibli-chill.vercel.app/.svg)](https://ghibli-chill.vercel.app/)
 
-> **Attribution:** This project is a fork and patch of the **NookOffice** by **[@cjlaserna](https://github.com/cjlaserna)**. Please consider supporting her work!
+> **Attribution:** This project is a fork and patch of the **NookOffice** by **[@cjlaserna](https://github.com/cjlaserna)** and **[@VijiatJack](https://github.com/VijiatJack)**. Please consider supporting their work!
 
-**Ghibli Chill** is a cozy, lo-fi productivity workspace designed to help you focus.
+**Ghibli Chill** is a cozy, lo-fi productivity workspace inspired by Studio Ghibli aesthetics, designed to help you focus with ambient vibes and minimal distractions.
 
-![Site Image](/public/timerprev.png)
+![Site Preview](/public/timerprev.png)
 
+## ✨ Features
 
-- **Hourly Music:** Automatically plays the corresponding Animal Crossing: New Horizons music for the current hour.
-- **Ambient Sounds:** Layer calming rain sounds over the music.
-- **To-Do List:** A simple, locally-saved to-do list to keep track of your tasks.
-- **Timers:** Quick access to 5, 10, and 15-minute timers.
-- **Notion-Embeddable:** Easily embed NookOffice into your Notion pages.
+- **Lo-fi Music Playlists:** Choose between curated lo-fi and jazz chill tracks to set the perfect study/work mood.
+- **Ambient Sounds:** Layer calming rain, campfire, or coffee shop sounds over your music for deeper immersion.
+- **Ghibli Video Overlay:** Pull the lamp switch to activate a beautiful Ghibli-inspired video loop with VHS film grain effects.
+- **To-Do List:** A simple, locally-saved task tracker to keep you organized without leaving your flow state.
+- **Timers:** Quick access to 5, 10, and 15-minute focus timers with pleasant notification sounds.
+- **Notion-Embeddable:** Easily embed Ghibli Chill into your Notion pages for an all-in-one workspace.
 
 ## 🛠️ How It Works
 
-NookOffice is a web application built with [Astro](https://astro.build/). It uses client-side JavaScript to:
-- Determine the current hour and select the appropriate music track.
-- Play and loop background music and ambient sounds.
+Ghibli Chill is a web application built with [Astro](https://astro.build/). It uses client-side JavaScript to:
+- Play and loop background music and ambient sounds with synchronized volume controls.
+- Toggle a full-screen Ghibli video overlay with blend mode effects for aesthetic vibes.
 - Manage the to-do list state using the browser's `localStorage`.
-- The user interface is built with Astro components and styled with CSS.
+- The user interface is built with Astro components and styled with CSS for a warm, nostalgic aesthetic.
 
 ## 🚀 Getting Started (for Developers)
 
-Want to run NookOffice locally or contribute to the project? Follow these steps.
+Want to run Ghibli Chill locally or contribute to the project? Follow these steps.
 
 ### Prerequisites
 
@@ -38,12 +39,12 @@ Want to run NookOffice locally or contribute to the project? Follow these steps.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/VijiatJack/nookoffice.git
+    git clone https://github.com/Lorenzob92/ghibli-chill.git
     ```
 
 2.  **Navigate to the project directory:**
     ```bash
-    cd nookoffice
+    cd ghibli-chill
     ```
 
 3.  **Install dependencies:**
@@ -69,19 +70,21 @@ The optimized static files will be generated in the `dist/` directory.
 
 ## 🔮 Future Plans
 
-- A more robust and customizable timer.
-- Music from other games in the Animal Crossing franchise.
-- A simple integrated notepad.
+- More music playlist options (ghibli OST tracks, ambient piano).
+- Customizable color themes (dark mode, warm sepia, cool blue).
+- Advanced timer features (custom durations, pomodoro cycles).
+- More ambient sound options (forest, ocean waves, library ambiance).
 
 ## 🎨 Sources & Credits
 
-- **Original Concept:** @cjlaserna
-- **Artist (Saino):** The artist behind some of the visual assets.
-- **GIFs:** Most other GIFs are from the official Animal Crossing Movie / Anime.
+- **Original Concept:** [@cjlaserna](https://github.com/cjlaserna) (NookOffice)
+- **Fork & Enhancements:** [@VijiatJack](https://github.com/VijiatJack)
+- **Ghibli Chill Patch:** [@Lorenzob92](https://github.com/Lorenzob92)
+- **Music:** Lo-fi and jazz chill tracks sourced from royalty-free libraries.
+- **Video:** Ghibli-inspired aesthetic loops and VHS film grain effects.
 
 ---
 
-[![Donate to the original creator](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/clasernaj)
-[![Embed in Notion](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white)](https://vijiatjack.github.io/nookoffice/?embed=true)
-[![View on Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/file/TIMSI0wSvnRDxgad2BNZv8/Nook-Office?node-id=0%3A1&t=xeY0HWG6hw3KkrcP-1)
+[![Donate to Original Creator](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/clasernaj)
+[![Live Site](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ghibli-chill.vercel.app/)
 
