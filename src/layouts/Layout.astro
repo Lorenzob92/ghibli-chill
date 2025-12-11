@@ -1,0 +1,143 @@
+---
+export interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link href="https://css.gg/css" rel="stylesheet" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
+		<link rel="canonical" href="https://ghibli-chill.vercel.app/" />
+
+		<!-- Primary Meta Tags -->
+		<title>Ghibli Chill</title>
+		<meta name="title" content="Ghibli Chill" />
+		<meta
+			name="description"
+			content="Ghibli Chill hosts hourly rotating ambient tracks for relaxing, studying, or working complete with timers & to-do lists."
+		/>
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://ghibli-chill.vercel.app/" />
+		<meta
+			property="og:title"
+			content="Ghibli Chill"
+		/>
+		<meta
+			property="og:description"
+			content="Ghibli Chill hosts hourly rotating ambient tracks for relaxing, studying, or working complete with timers & to-do lists."
+		/>
+		<meta property="og:image" content="/imgprev.png" />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://ghibli-chill.vercel.app/" />
+		<meta property="twitter:domain" content="ghibli-chill.vercel.app" />
+		<meta
+			property="twitter:title"
+			content="Ghibli Chill"
+		/>
+		<meta
+			property="twitter:description"
+			content="Ghibli Chill hosts hourly rotating ambient tracks for relaxing, studying, or working complete with timers & to-do lists."
+		/>
+		<meta property="twitter:image" content="/imgprev.png" />
+
+		<!-- discord -->
+		<meta name="theme-color" content="#bcddc8" />
+		<link type="application/json+oembed" href="/oembed.json" />
+		<title>{title}</title>
+		<script>
+			const url = new URL(window.location.toString());
+			const searchParams = url.searchParams;
+			if (searchParams.get("embed") == "true") {
+				document.getElementsByTagName("title")[0].innerHTML =
+					"Ghibli Chill Embed";
+				document.getElementsByTagName("body")[0].style.backgroundImage = "none";
+				document.getElementsByTagName("body")[0].style.backgroundColor =
+					"transparent";
+
+				const feedback = document.getElementById("feedback");
+				if (feedback) {
+					feedback.innerHTML = "Press to Play..";
+				}
+
+				navigator.clipboard.writeText(window.location.toString());
+				alert(
+					"Copied to clipboard and ready to paste on to Notion (or wherever you want!)."
+				);
+			}
+		</script>
+		<script
+			type="text/partytown"
+			src="https://www.googletagmanager.com/gtag/js?id=G-H005YLXDZP"
+		></script>
+		<script type="text/partytown">
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
+			gtag("config", "G-H005YLXDZP");
+		</script>
+	</head>
+
+	<body>
+		<slot />
+	</body>
+</html>
+<style is:global>
+	:root {
+		background-color: transparent;
+	}
+	html {
+		font-family: system-ui, sans-serif;
+	}
+	body {
+		background-color: #f6f6f6;
+		background-image: url("/background.png"); /* Note: Keeping background filename as is unless requested */
+		background-repeat: repeat;
+		background-position: center;
+		background-size: auto;
+
+		width: 100vw;
+		height: 100vh;
+		overflow: clip;
+
+		margin: 0;
+		padding: 0;
+	}
+
+	@font-face {
+		font-family: "Arial Rounded MT";
+		src: url("/Arial_Rounded_MT.ttf") format("truetype");
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	@font-face {
+		font-family: "Arial Rounded MT Bold";
+		src: url("/arialmtbold.ttf") format("truetype");
+		font-weight: normal;
+		font-style: normal;
+	}
+
+	* {
+		font-family: "Arial Rounded MT Bold", sans-serif;
+	}
+	p {
+		margin: 0;
+		color: #fffdf2;
+	}
+	code {
+		font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
+			DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+	}
+</style>

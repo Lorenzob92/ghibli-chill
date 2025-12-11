@@ -1,0 +1,179 @@
+---
+---
+
+<script>
+	var lamp = document.getElementById("light-switch");
+	var overlay = document.getElementById("night-overlay");
+    var video = document.getElementById("night-video") as HTMLVideoElement;
+    var vhs = document.getElementById("vhs-video") as HTMLVideoElement;
+
+	if (overlay) {
+		overlay.style.display = "none";
+        overlay.style.visibility = "hidden";
+	}
+
+	lamp?.addEventListener("click", () => {
+		lamp?.classList.add("pull-down");
+		if (overlay?.style.display == "none") {
+			overlay.style.display = "flex";
+            overlay.style.visibility = "visible";
+            if (video) video.play();
+            if (vhs) {
+                vhs.playbackRate = 0.25; // Even slower speed
+                vhs.play();
+            }
+		} else {
+			if (overlay) {
+				overlay.style.display = "none";
+                overlay.style.visibility = "hidden";
+                if (video) video.pause();
+                if (vhs) vhs.pause();
+			}
+		}
+	});
+
+	lamp?.addEventListener("animationend", () => {
+		lamp?.classList.remove("pull-down");
+	});
+</script>
+
+<!-- https://mattkeaveney.com/articles/2021_01_28_creating_a_css_js_lamp_pull_chain -->
+<div id="light-switch">
+	<div class="rope"></div>
+	<div class="knob"><span>&#9864;<span></span></span></div>
+</div>
+
+<div id="night-overlay">
+    <div id="video-stage">
+        <video id="night-video" src="/ghibli_loop.mp4" muted loop playsinline></video>
+        <video id="vhs-video" src="/vhs_noise.mp4" muted loop playsinline></video>
+        <div class="lofi-overlay"></div>
+    </div>
+</div>
+
+<style>
+    
+    #video-stage {
+        position: relative;
+        width: 100%;
+        max-width: 177.78vh; /* 16/9 * 100vh - limits width so height doesn't exceed screen */
+        aspect-ratio: 16 / 9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 50px rgba(0,0,0,0.5); /* Nice glow around video */
+    }
+
+    .lofi-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1600; /* Above videos, below bell */
+        background: 
+            linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+            linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%;
+        box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+        backdrop-filter: sepia(20%) contrast(110%) brightness(110%);
+        opacity: 0.8;
+    }
+
+	#light-switch {
+		position: fixed;
+		top: -1.5em;
+		right: 1em;
+		text-align: center;
+		cursor: pointer;
+		z-index: 2000; /* Keep bell on top of everything */
+	}
+
+	#light-switch div.rope {
+		width: 1.25em;
+		height: 20em;
+		background-color: #fffdf2;
+		border-radius: 25px;
+		margin: 0 auto;
+		margin-top: -1em;
+		box-shadow: 0 0 10px rgba(0,0,0,0.3);
+	}
+
+	#light-switch div.rounded-circle:last-of-type {
+		border-radius: 0px 0px 26px 26px;
+	}
+
+	#light-switch div.knob {
+		color: #fac403;
+		font-size: 3em;
+		font-family: sans-serif;
+		text-shadow: 0 0 10px rgba(0,0,0,0.3);
+	}
+
+	#light-switch div.knob span {
+		font-size: 0.8em;
+		position: relative;
+		bottom: 20px;
+	}
+
+	#night-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background-color: #050505; /* Very dark background */
+		display: none !important;
+        visibility: hidden;
+		z-index: 1500; /* Below knob, above everything else */
+        justify-content: center;
+        align-items: center;
+        padding: 0; /* Clear padding */
+	}
+    
+    #night-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Fill the stage */
+        opacity: 0.8;
+    }
+    
+    #vhs-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Fill the stage */
+        mix-blend-mode: screen; /* Blend the VHS noise */
+        opacity: 0.1; /* Reduced opacity to 10% */
+        pointer-events: none;
+        z-index: 1550; /* Above base video, below lofi overlay */
+    }
+ 
+	.pull-down {
+		animation: PullCord 0.6s ease-in;
+	}
+
+	@keyframes PullCord {
+		0%,
+		100% {
+			top: -1em;
+		}
+		50% {
+			top: 0;
+		}
+	}
+
+	@media only screen and (max-width: 1100px) {
+		#light-switch {
+			right: 3em;
+		}
+
+		#light-switch div.rope {
+			width: .75em;
+			height: 3em;
+		}
+	}
+</style>

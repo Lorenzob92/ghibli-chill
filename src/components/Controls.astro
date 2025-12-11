@@ -1,0 +1,367 @@
+---
+import "./controls.css";
+---
+
+<script>
+	// Audio Players
+    type AudioTracks = {
+        [key: string]: HTMLAudioElement;
+    };
+
+	const musicTracks: AudioTracks = {
+		chill: new Audio("./music/jazz_chill.mp3"),
+		drums: new Audio("./music/jazz_drums.mp3"),
+		lofi: new Audio("./music/lofi.mp3"),
+	};
+    
+    // Ambient Players
+    const ambientTracks: AudioTracks = {
+        rain: new Audio("./sounds/rain.mp3"),
+        campfire: new Audio("./sounds/campfire.mp3"),
+        coffee: new Audio("./sounds/coffee.mp3")
+    };
+
+    // Configure Ambient Tracks
+    Object.values(ambientTracks).forEach(track => {
+        track.loop = true;
+        track.volume = 0.5; // Default ambient volume
+    });
+
+	let currentMood = "chill";
+	let isPlaying = false;
+    let isMixerOpen = false;
+
+	const feedback = document.getElementById("feedback");
+
+	// Initial Setup
+	Object.values(musicTracks).forEach((track) => {
+		track.loop = true;
+		track.volume = 1.0;
+	});
+
+	// functions for controls
+	function play() {
+		// Play Music
+		musicTracks[currentMood].play();
+		isPlaying = true;
+
+        // Resume active ambient tracks
+        Object.values(ambientTracks).forEach(track => {
+            if (!track.paused && track.currentTime > 0) {
+                 track.play();
+            }
+        });
+
+		if (feedback) {
+			feedback.innerHTML = "Playing...";
+		}
+	}
+
+	function pause() {
+		// Pause Music
+		Object.values(musicTracks).forEach((track) => track.pause());
+		isPlaying = false;
+        
+        // Pause Ambience (but remember they are "active" effectively by not resetting them? 
+        // HTMLAudioElement.paused is true if paused.
+        // We probably want to PAUSE them. 
+        Object.values(ambientTracks).forEach(track => track.pause());
+
+		if (feedback) {
+			feedback.innerHTML = "Paused";
+		}
+	}
+
+    function setMood(mood: string) {
+        if (currentMood === mood) return;
+
+        const wasPlaying = isPlaying;
+        
+        // Stop current track
+        musicTracks[currentMood].pause();
+
+        currentMood = mood;
+
+        if (wasPlaying) {
+            musicTracks[currentMood].play();
+             if (feedback) {
+			    feedback.innerHTML = `Playing ${mood}...`;
+		    }
+        } else {
+             if (feedback) {
+			    feedback.innerHTML = `Selected ${mood}`;
+		    }
+        }
+    }
+
+	function skip() {
+		if (musicTracks[currentMood]) {
+			musicTracks[currentMood].currentTime += 600; // Skip 10 minutes
+			if (feedback) {
+				feedback.innerHTML = "Skipped ahead...";
+			}
+		}
+	}
+
+	function refreshGIF() {
+		var feed = document.getElementById("feed");
+
+		if (feed) {
+			feed.setAttribute(
+				"src",
+				`./video-feed/bg_${Math.floor(Math.random() * 10) + 1}.gif`
+			);
+		}
+	}
+    
+    function toggleMixer() {
+        isMixerOpen = !isMixerOpen;
+        const mixer = document.getElementById('ambience-mixer');
+        const mixerBtn = document.getElementById('mixer');
+        
+        if (isMixerOpen) {
+            mixer?.classList.remove('hidden-mixer');
+            mixerBtn?.classList.add('active-ctrl');
+            if (feedback) feedback.innerHTML = "Mixer Open";
+        } else {
+            mixer?.classList.add('hidden-mixer');
+            mixerBtn?.classList.remove('active-ctrl');
+            if (feedback) feedback.innerHTML = "Mixer Closed";
+        }
+    }
+
+    function toggleAmbience(type: string) {
+        const track = ambientTracks[type];
+        const btn = document.getElementById(`toggle-${type}`);
+        
+        if (track.paused) {
+            track.play();
+            btn?.classList.add('active-ambience');
+            if (feedback) feedback.innerHTML = `${type} enabled`;
+        } else {
+            track.pause();
+            btn?.classList.remove('active-ambience');
+            if (feedback) feedback.innerHTML = `${type} disabled`;
+        }
+    }
+
+	// Auto-shuffle GIF every 5 minutes
+	setInterval(refreshGIF, 300000);
+
+	// event handling
+	const controls = document.querySelectorAll("img.control");
+    const moodButtons = document.querySelectorAll(".mood-btn");
+	const volumeControls = document.querySelectorAll("#range");
+    
+    // Ambient Volume Sliders
+    const ambientSliders = document.querySelectorAll(".ambience-slider");
+    ambientSliders.forEach(slider => {
+        slider.addEventListener('input', (e) => {
+           const target = e.target as HTMLInputElement;
+           const type = target.dataset.type;
+           if (type && ambientTracks[type]) {
+               ambientTracks[type].volume = parseFloat(target.value) / 100;
+           }
+        });
+    });
+    
+    // Ambient Toggles
+    const ambientToggles = document.querySelectorAll(".ambience-toggle");
+    ambientToggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+             // Handle click on the wrapper or img
+             // Finding the closest wrapper data-type
+             const type = (e.currentTarget as HTMLElement).dataset.type;
+             if (type) toggleAmbience(type);
+        });
+    });
+
+
+	volumeControls.forEach((volumeControl) => {
+		var volume: number;
+		volumeControl.addEventListener("input", () => {
+			volume = parseFloat((volumeControl as HTMLInputElement).value) / 100; // Normalize to 0-1
+			
+            // Update music tracks volume
+            Object.values(musicTracks).forEach(track => {
+                track.volume = volume;
+            });
+            // Ambience is independent now
+		});
+	});
+
+	// Handle clicks on each button.
+	controls.forEach((control) => {
+		control.addEventListener("click", () => {
+			switch (control.id) {
+				case "pause":
+					pause();
+					break;
+				case "play":
+					play();
+					break;
+				case "refresh":
+					refreshGIF();
+					break;
+				case "skip":
+					skip();
+					break;
+				case "mixer":
+                    toggleMixer();
+					break;
+				default:
+					null;
+			}
+		});
+
+		// MouseOver Flairs
+		control.addEventListener("mouseover", () => {
+             // ...
+		});
+	});
+
+    // Mood Button Handling
+    moodButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const mood = (e.target as HTMLElement).dataset.mood;
+            if(mood) setMood(mood);
+        })
+    })
+
+	// Clock logic
+	var today = new Date();
+	var visualDate = document.getElementById("locale-date");
+	var visualTime = document.getElementById("locale-time");
+
+	function refreshClock() {
+		today = new Date();
+		var newDate = today.toLocaleDateString([], {
+			weekday: "long",
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		});
+		var newTime = today.toLocaleTimeString([], {
+			hour: "2-digit",
+			minute: "2-digit",
+		});
+		if (visualDate && newDate != visualDate.innerHTML) {
+			visualDate.innerHTML = newDate;
+		}
+		if (visualTime && newTime != visualTime.innerHTML) {
+			visualTime.innerHTML = newTime;
+		}
+	}
+
+	refreshClock();
+	
+	// every minute
+	setInterval(() => {
+		refreshClock();
+	}, 1000);
+
+    // Mixer Close Logic
+    const closeMixerBtn = document.getElementById('close-mixer');
+    closeMixerBtn?.addEventListener('click', () => {
+        if (isMixerOpen) toggleMixer();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!isMixerOpen) return;
+        const mixer = document.getElementById('ambience-mixer');
+        const mixerBtn = document.getElementById('mixer');
+        const target = e.target as HTMLElement;
+
+        // If click is not inside mixer and not on the toggle button
+        if (mixer && !mixer.contains(target) && mixerBtn && !mixerBtn.contains(target)) {
+             toggleMixer();
+        }
+    });
+</script>
+
+<div class="mood-selector">
+    <button class="mood-btn" data-mood="chill">Chill</button>
+    <button class="mood-btn" data-mood="drums">Drums</button>
+    <button class="mood-btn" data-mood="lofi">Lofi</button>
+</div>
+
+<div class="player-controls">
+	<div class="hidden">
+		<!-- Player removed -->
+	</div>
+
+	<div class="ctrl-wrapper">
+		<img class="control" id="pause" src="./player-controls/pause.svg" alt="pause"/>
+		<img class="control" id="play" src="./player-controls/play.svg" alt="play"/>
+		<img class="control" id="skip" src="./player-controls/skip.svg" alt="skip"/>
+		<img class="control" id="refresh" src="./player-controls/refresh.svg" alt="refresh"/>
+		<img class="control" id="mixer" src="./player-controls/mixer.svg" alt="mixer"/>
+	</div>
+
+	<p id="feedback">
+		Press to Play Manually.
+	</p>
+
+	<div class="right-ctrl">
+		<input
+			type="range"
+			min="1"
+			max="100"
+			value="100"
+			step="5"
+			autocomplete="off"
+			class="slider"
+			id="range"
+		/>
+	</div>
+</div>
+
+<div id="ambience-mixer" class="ambience-mixer hidden-mixer">
+    <button id="close-mixer" class="close-btn" title="Close Mixer">&times;</button>
+    <div class="ambience-row">
+        <div class="ambience-toggle" id="toggle-rain" data-type="rain">
+             <img src="./player-controls/rain.svg" alt="Rain"/>
+        </div>
+        <input type="range" class="ambience-slider" data-type="rain" min="0" max="100" value="50"/>
+    </div>
+    <div class="ambience-row">
+        <div class="ambience-toggle" id="toggle-campfire" data-type="campfire">
+             <img src="./player-controls/campfire.svg" alt="Campfire"/>
+        </div>
+        <input type="range" class="ambience-slider" data-type="campfire" min="0" max="100" value="50"/>
+    </div>
+    <div class="ambience-row">
+        <div class="ambience-toggle" id="toggle-coffee" data-type="coffee">
+             <img src="./player-controls/coffee.svg" alt="Coffee"/>
+        </div>
+        <input type="range" class="ambience-slider" data-type="coffee" min="0" max="100" value="50"/>
+    </div>
+</div>
+
+<style>
+    /* Additions for close button */
+    .ambience-mixer {
+        /* Ensure user can position the button */
+        position: absolute;
+    }
+    .close-btn {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .close-btn:hover {
+        background: #dc2626;
+    }
+</style>

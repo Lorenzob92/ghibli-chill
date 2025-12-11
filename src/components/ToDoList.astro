@@ -1,0 +1,773 @@
+---
+import Creds from "./Creds.astro";
+---
+
+<script>
+    // UUID Generator
+    function uuidv4() {
+        return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+            (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+        );
+    }
+
+	// pulley logic
+	const contents = document.getElementById("tasks");
+	const container = document.getElementById("todo");
+	const pull = document.getElementById("pulley");
+
+	if (contents) {
+		contents.style.height = "0px";
+	}
+
+	container?.addEventListener("click", (e) => {
+		if (contents?.style.height == "0px" && e.target == container) {
+			container.style.pointerEvents = "none";
+			if (pull) {
+				pull.style.pointerEvents = "auto";
+				pull.classList.add("trigger");
+			}
+			container.classList.remove("trigger");
+			container.classList.add("active");
+
+			contents.style.height = "100%";
+			contents.style.maxHeight = "100vh";
+			contents.style.paddingTop = "2rem";
+			contents.style.paddingBottom = "1rem";
+
+			container.style.margin = "auto";
+			container.style.height = "100%";
+			container.style.position = "absolute";
+		}
+	});
+
+	pull?.addEventListener("click", (e) => {
+		if (
+			contents &&
+			container &&
+			contents?.style.height != "0px" &&
+			e.target == pull
+		) {
+			container.classList.add("trigger");
+			container.classList.remove("active");
+
+			contents.style.height = "0px";
+			contents.style.padding = "0px";
+
+			container.style.height = "unset";
+			container.style.position = "static";
+			container.style.margin = "1em 0";
+			container.style.pointerEvents = "auto";
+			pull.style.pointerEvents = "none";
+		}
+	});
+
+    // --- Task Tracker Logic ---
+
+    interface Task {
+        id: string;
+        text: string;
+        category: string;
+        startTime: number | null;
+        elapsedTime: number;
+        status: 'active' | 'completed';
+        createdAt: string;
+        completedAt: string | null;
+    }
+
+    let items: Task[] = JSON.parse(localStorage.getItem("ghibli_tasks_v1") || "[]");
+    let activeTab = 'active';
+
+    const listEl = document.getElementById("listOfItemsID");
+    const formEl = document.getElementById("formToAddItemsID");
+    const activeTabBtn = document.getElementById("tab-active");
+    const historyTabBtn = document.getElementById("tab-history");
+    const exportBtn = document.getElementById("btn-export");
+
+    function save() {
+        localStorage.setItem("ghibli_tasks_v1", JSON.stringify(items));
+        render();
+    }
+    
+    function exportCSV() {
+        const historyItems = items.filter(i => i.status === 'completed');
+        if (!historyItems.length) {
+            alert("No history to export!");
+            return;
+        }
+
+        const csvContent = [
+            "Category,Task,Completed At,Duration",
+            ...historyItems.map(i => {
+                const dur = formatDuration(i.elapsedTime);
+                const date = i.completedAt ? new Date(i.completedAt).toLocaleString() : '';
+                const safeText = `"${i.text.replace(/"/g, '""')}"`;
+                return `${i.category},${safeText},${date},${dur}`;
+            })
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "ghibli-tasks-history.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    
+    function formatDuration(ms: number) {
+        const seconds = Math.floor((ms / 1000) % 60);
+        const minutes = Math.floor((ms / (1000 * 60)) % 60);
+        const hours = Math.floor((ms / (1000 * 60 * 60)));
+        const pad = (num: number) => num.toString().padStart(2, '0');
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+    
+    function getCategoryStyle(category: string) {
+         switch(category) {
+            case 'Work': return 'background: #e0f2fe; color: #0369a1;';
+            case 'Study': return 'background: #f3e8ff; color: #7e22ce;';
+            case 'Personal': return 'background: #dcfce7; color: #15803d;';
+            case 'Break': return 'background: #ffedd5; color: #c2410c;';
+            default: return 'background: #f3f4f6; color: #374151;';
+        }
+    }
+
+    function render() {
+        if (!listEl) return;
+        
+        const filteredItems = items.filter(i => 
+            activeTab === 'active' ? i.status === 'active' : i.status === 'completed'
+        );
+        
+        if (activeTab === 'history') {
+             filteredItems.sort((a, b) => (new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime()));
+             if (exportBtn) exportBtn.style.display = filteredItems.length ? 'flex' : 'none';
+        } else {
+             if (exportBtn) exportBtn.style.display = 'none';
+        }
+        
+        if (filteredItems.length === 0) {
+            listEl.innerHTML = `
+                <div class="empty-state">
+                    <p>${activeTab === 'active' ? 'No active tasks. Time to focus! ✨' : 'No history yet.'}</p>
+                </div>
+            `;
+            return;
+        }
+
+        listEl.innerHTML = filteredItems.map(item => {
+            const isRunnning = item.startTime !== null;
+            const currentElapsed = isRunnning 
+                ? item.elapsedTime + (Date.now() - (item.startTime || 0)) 
+                : item.elapsedTime;
+            
+            const durationDisplay = formatDuration(currentElapsed);
+            const catStyle = getCategoryStyle(item.category);
+
+            if (activeTab === 'active') {
+                return `
+                    <li class="task-card ${isRunnning ? 'card-active' : ''}" id="task-${item.id}">
+                        <div class="card-left">
+                            <span class="badge" style="${catStyle}">${item.category}</span>
+                            <span class="task-title" title="${item.text}">${item.text}</span>
+                        </div>
+                        <div class="card-right">
+                            <div class="timer-pill ${isRunnning ? 'timer-running' : ''}">
+                                ${durationDisplay}
+                            </div>
+                            <div class="controls-group">
+                                <button class="ctrl-btn ${isRunnning ? 'btn-pause' : 'btn-play'}" 
+                                        data-action="${isRunnning ? 'stop' : 'start'}" 
+                                        data-id="${item.id}"
+                                        title="${isRunnning ? 'Pause' : 'Start Timer'}">
+                                    ${isRunnning 
+                                        ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>' 
+                                        : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'}
+                                </button>
+                                <button class="ctrl-btn btn-check" data-action="finish" data-id="${item.id}" title="Complete Task">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                </button>
+                                <button class="ctrl-btn btn-delete" data-action="delete" data-id="${item.id}" title="Delete">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            } else {
+                return `
+                     <li class="task-card history-card">
+                        <div class="card-left">
+                            <span class="badge" style="${catStyle}">${item.category}</span>
+                             <span class="task-title strike">${item.text}</span>
+                        </div>
+                        <div class="card-right">
+                            <div class="meta-group">
+                                <span class="meta-date">${new Date(item.completedAt!).toLocaleDateString()}</span>
+                                <span class="meta-time">${formatDuration(item.elapsedTime)}</span>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }
+        }).join("");
+    }
+
+    function addTask(e: Event) {
+        e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const textInput = form.querySelector("[name=item]") as HTMLInputElement;
+        const categoryInput = form.querySelector("[name=category]") as HTMLSelectElement;
+        
+        if (!textInput.value.trim()) return;
+
+        const newTask: Task = {
+            id: uuidv4(),
+            text: textInput.value,
+            category: categoryInput.value,
+            startTime: null,
+            elapsedTime: 0,
+            status: 'active',
+            createdAt: new Date().toISOString(),
+            completedAt: null
+        };
+
+        items.push(newTask);
+        save();
+        textInput.value = ''; 
+    }
+
+    function handleTaskAction(e: Event) {
+        const btn = (e.target as HTMLElement).closest('button');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (!id) return;
+
+        const taskIndex = items.findIndex(i => i.id === id);
+        if (taskIndex === -1) return;
+        const task = items[taskIndex];
+
+        if (action === 'start') {
+            items.forEach(i => {
+                if (i.startTime) {
+                    i.elapsedTime += Date.now() - i.startTime;
+                    i.startTime = null;
+                }
+            });
+            task.startTime = Date.now();
+        } else if (action === 'stop') {
+            if (task.startTime) {
+                task.elapsedTime += Date.now() - task.startTime;
+                task.startTime = null;
+            }
+        } else if (action === 'finish') {
+            if (task.startTime) {
+                task.elapsedTime += Date.now() - task.startTime;
+                task.startTime = null;
+            }
+            task.status = 'completed';
+            task.completedAt = new Date().toISOString();
+        } else if (action === 'delete') {
+            items.splice(taskIndex, 1);
+        }
+
+        save();
+    }
+    
+
+
+    setInterval(() => {
+        if (items.some(i => i.startTime !== null && activeTab === 'active')) {
+            render();
+        }
+    }, 1000);
+
+    activeTabBtn?.addEventListener('click', () => {
+        activeTab = 'active';
+        activeTabBtn.classList.add('tab-active');
+        historyTabBtn?.classList.remove('tab-active');
+        render();
+    });
+
+    historyTabBtn?.addEventListener('click', () => {
+        activeTab = 'history';
+        historyTabBtn.classList.add('tab-active');
+        activeTabBtn?.classList.remove('tab-active');
+        render();
+    });
+    
+    exportBtn?.addEventListener('click', exportCSV);
+
+    formEl?.addEventListener('submit', addTask);
+    listEl?.addEventListener('click', handleTaskAction);
+
+    render();
+
+</script>
+
+<div class="todo-wrapper">
+	<div class="todo-container trigger pullable" id="todo">
+		<div class="pulley" id="pulley"><p></p></div>
+		
+        <div class="content" id="tasks">
+            
+            <div class="app-header">
+                <h2>Task Tracker</h2>
+                <div class="header-actions">
+                     <div class="segment-control">
+                        <button id="tab-active" class="segment-btn tab-active">Active</button>
+                        <button id="tab-history" class="segment-btn">History</button>
+                    </div>
+                    <button id="btn-export" class="export-btn" title="Export CSV" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="scroll-area">
+			    <ul id="listOfItemsID" class="items-list"></ul>
+            </div>
+			
+            <div class="bottom-panel">
+                <form id="formToAddItemsID" class="add-form" autocomplete="off">
+                    <div class="input-group">
+                        <select name="category" class="cat-select">
+                            <option value="Work">💼 Work</option>
+                            <option value="Study">📚 Study</option>
+                            <option value="Personal">🧘 Personal</option>
+                            <option value="Break">☕ Break</option>
+                        </select>
+                        <input type="text" name="item" placeholder="What needs focus?" required />
+                        <button type="submit" class="add-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="footer-area">
+                    <Creds />
+                </div>
+            </div>
+		</div>
+	</div>
+</div>
+
+<style is:global>
+    /* Base Todo Container & Pulley Styles */
+    .todo-wrapper {
+        height: calc(100% + 2em);
+    }
+    
+    .todo-container {
+        margin-top: 10px;
+        position: static;
+        background-color: #ffffff; /* User requested pure white (was #fffdf2) */
+        padding: 1rem;
+        border-radius: 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: calc(100% - 2rem);
+        z-index: 10;
+        top: 0;
+        left: 0;
+        bottom: -30%;
+        right: 0;
+        transition: all 1s ease-in-out !important;
+    }
+    
+    .todo-container > * {
+        pointer-events: auto;
+    }
+    
+    /* .todo-container * { transition: all 0.25s ease; }  <-- Removed to fix wonky hover animations */
+    
+    .todo-container form,
+    .todo-container input {
+        transition: none;
+    }
+
+    .todo-container .pulley {
+        width: 50%;
+        height: 10px;
+        background-color: #e4dac9;
+        pointer-events: none;
+        border-radius: 10rem;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .todo-container .pulley p {
+        color: #5baaab;
+        line-height: 0;
+        font-size: 1rem;
+        display: block;
+        padding: 1em;
+    }
+
+    .trigger:hover .pulley,
+    .pulley.trigger:hover {
+        cursor: pointer;
+        height: 15px;
+        background-color: #8f826a;
+    }
+    
+    .trigger:hover {
+        cursor: pointer;
+    }
+
+    .todo-container .content {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+        max-height: 0px;
+        width: 100%;
+        padding: 0;
+        padding-bottom: 0;
+        overflow: hidden;
+        transition: max-height 0.25s ease-in;
+    }
+
+    .todo-container.active {
+        height: 100vh !important;
+        top: -1.2rem;
+        bottom: unset;
+    }
+    
+    .todo-btm {
+        display: flex;
+        width: 100%;
+        align-items: center;
+    }
+
+    .todo-btm > * {
+        flex: 1;
+    }
+
+    @media only screen and (max-width: 1100px) {
+        .todo-container {
+            left: 0;
+            right: 0;
+            margin: auto;
+            margin-top: 10px;
+            width: calc(100% - 2rem);
+        }
+        .todo-btm > * {
+            flex: unset;
+        }
+        .todo-btm div:first-child {
+            margin-bottom: 10px;
+        }
+        .todo-btm {
+            flex-direction: column;
+            width: calc(100% - 1rem);
+        }
+    }
+
+    @media only screen and (max-height: 500px) {
+        .todo-container {
+            display: none;
+        }
+    }
+
+    /* Reset & Fonts */
+    .todo-container {
+        font-family: 'DM Sans', sans-serif;
+        color: #333;
+    }
+
+    /* Header & Tabs */
+    .app-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+    
+    .app-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #55B7A3;
+    }
+    
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .segment-control {
+        background: #f1f3f5;
+        padding: 4px;
+        border-radius: 20px;
+        display: flex;
+        gap: 5px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .segment-btn {
+        padding: 6px 20px;
+        border: none;
+        background: transparent;
+        border-radius: 16px;
+        color: #888;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .segment-btn.tab-active {
+        background: #fff;
+        color: #55B7A3;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .export-btn {
+        background: #f1f3f5;
+        border: none;
+        padding: 8px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        color: #55B7A3;
+        transition: 0.2s;
+    }
+    .export-btn:hover { background: #e5e7eb; }
+    .export-btn svg { width: 18px; height: 18px; }
+
+    /* List Area */
+    .scroll-area {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 0 10px;
+        width: 100%;
+        margin-bottom: 20px;
+        /* Scrollbar styling could go here */
+    }
+
+    .items-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding-top: 20px;
+        font-style: italic;
+        font-weight: 500;
+    }
+    
+    .empty-state p {
+        color: #55B7A3 !important; /* Force color on the p tag to override global styles */
+    }
+
+    /* Task Card */
+    .task-card {
+        background: rgba(255,255,255,0.9);
+        border-radius: 16px;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        border: 1px solid rgba(255,255,255,0.5);
+        transition: transform 0.2s, box-shadow 0.2s;
+        backdrop-filter: blur(4px);
+    }
+    
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    .card-active {
+        border-left: 4px solid #55B7A3;
+        background: #fff;
+    }
+
+    .card-left {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-width: 60%;
+        align-items: flex-start;
+    }
+
+    .badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    .task-title {
+        font-size: 1rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    
+    .strike {
+        text-decoration: line-through;
+        color: #aaa;
+    }
+
+    .card-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    /* Timer Pill */
+    .timer-pill {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        color: #555;
+        font-weight: bold;
+    }
+    
+    .timer-running {
+        background: #e0f2fe;
+        color: #0369a1;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.8; }
+        100% { opacity: 1; }
+    }
+
+    /* Controls */
+    .controls-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    .ctrl-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #fff;
+    }
+
+    .ctrl-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .btn-play { background: #55B7A3; box-shadow: 0 2px 6px rgba(85,183,163,0.3); }
+    .btn-pause { background: #f59e0b; box-shadow: 0 2px 6px rgba(245,158,11,0.3); }
+    .btn-check { background: #10b981; box-shadow: 0 2px 6px rgba(16,185,129,0.3); }
+    .btn-delete { background: #ef4444; box-shadow: 0 2px 6px rgba(239,68,68,0.3); opacity: 0.8; }
+
+    .ctrl-btn:hover {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    /* Input Area */
+    .bottom-panel {
+        margin-top: auto;
+        padding: 15px 0 0;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        width: 100%;
+    }
+    
+    .add-form {
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        display: flex;
+        background: #fff;
+        padding: 5px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+    }
+
+    .cat-select {
+        border: none;
+        background: transparent;
+        font-size: 1.2rem;
+        padding: 0 10px;
+        cursor: pointer;
+        border-right: 1px solid #eee;
+        outline: none;
+    }
+
+    .input-group input {
+        flex-grow: 1;
+        border: none;
+        padding: 10px;
+        font-size: 0.95rem;
+        outline: none;
+    }
+
+    .add-btn {
+        background: #55B7A3;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        width: 40px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .add-btn:hover {
+        background: #449c8b;
+    }
+    
+    .add-btn svg { width: 20px; height: 20px; }
+    
+    /* Footer override */
+    .footer-area {
+        opacity: 0.7;
+        transform: scale(0.95);
+    }
+    
+    /* History Meta */
+    .meta-group {
+        display: flex;
+        gap: 10px;
+        font-size: 0.8rem;
+        color: #888;
+    }
+
+</style>

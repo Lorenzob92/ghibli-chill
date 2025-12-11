@@ -1,0 +1,86 @@
+---
+---
+
+<div class="creds">
+	<div class="contents">
+		<div class="txt">
+			<p>
+				patched by <a
+					href="https://twitter.com/Lorenzobonari"
+					target="_blank"
+				>
+					@Lorenzob92</a
+				>
+			</p>
+		</div>
+	</div>
+</div>
+
+<style>
+	.creds p,
+	.creds a {
+		font-size: 0.75rem;
+		color: #000;
+		text-align: right;
+        white-space: nowrap;
+        font-weight: 700; /* making it slightly bolder for readability while we're at it, optional but nice */
+	}
+
+	.creds p > * {
+		display: inline;
+	}
+	.creds {
+		width: 100%;
+		display: flex;
+		justify-content: flex-end;
+		align-items: flex-end;
+		height: 100%;
+	}
+	.contents {
+		margin-top: 5px;
+		max-width: 500px;
+		position: relative;
+	}
+	.contents .txt {
+		position: absolute;
+		bottom: 5px; /* Moved up from -10px to ensure visibility */
+		text-align: right;
+		right: 0;
+	}
+	.btn-group {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-bottom: 20px !important;
+		width: 100%;
+		flex-wrap: wrap;
+
+		flex-direction: row;
+		gap: 10px;
+	}
+
+	@media only screen and (max-width: 500px) {
+		.btn-group {
+			gap: 5px;
+		}
+
+		.contents,
+		.contents > * {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+		}
+
+		.contents .txt {
+			text-align: center !important;
+			margin: 0 auto !important;
+			right: unset;
+		}
+
+		.creds {
+			justify-content: center;
+			align-items: center;
+		}
+	}
+</style>
