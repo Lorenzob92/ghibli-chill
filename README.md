@@ -8,7 +8,6 @@
 **Ghibli Chill** is a cozy, lo-fi productivity workspace inspired by Studio Ghibli aesthetics, designed to help you focus with ambient vibes and minimal distractions.
 
 ![Site Preview](https://i.ibb.co/hJKcG8vB/Clean-Shot-2025-12-11-at-14-31-23-2x.png)
-![Site Preview](https://i.ibb.co/rRD2dhkK/Clean-Shot-2025-12-11-at-16-35-45-2x.png)
 
 ## ✨ Features
 
@@ -16,6 +15,8 @@
 - **Ambient Sounds:** Layer calming rain, campfire, or coffee shop sounds over your music for deeper immersion.
 - **Ghibli Video Overlay:** Pull the lamp switch to activate a beautiful Ghibli-inspired video loop with VHS film grain effects.
 - **Timed Task List:** Track your tasks with time logging and export your completed work to CSV for productivity reports.
+
+![Site Preview](https://i.ibb.co/rRD2dhkK/Clean-Shot-2025-12-11-at-16-35-45-2x.png)
 
 ## 🛠️ How It Works
 
