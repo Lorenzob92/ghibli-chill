@@ -1,4 +1,4 @@
-# Ghibli Chill - Productivity Suite 🍃📼
+# Ghibli Chill - Productivity Suite
 
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Lorenzob92/ghibli-chill/commits/main)
 [![Site Status](https://img.shields.io/website-up-down-green-red/https/ghibli-chill.vercel.app/.svg)](https://ghibli-chill.vercel.app/)
