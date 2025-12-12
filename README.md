@@ -84,7 +84,3 @@ The optimized static files will be generated in the `dist/` directory.
 - **Video:** Ghibli-inspired aesthetic loops and VHS film grain effects.
 
 ---
-
-[![Donate to Original Creator](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/clasernaj)
-[![Live Site](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ghibli-chill.vercel.app/)
-
